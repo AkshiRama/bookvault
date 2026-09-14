@@ -89,6 +89,9 @@ const PORT = process.env.PORT || 5000;
 
 // ---------------------------------------------------------------------------
 // Start Server
+// In a serverless environment (Vercel), VERCEL=1 is set automatically.
+// We skip app.listen() there — the exported app is called directly per request.
+// We still connect to the DB eagerly to avoid cold-start latency on first request.
 // ---------------------------------------------------------------------------
 const startServer = async () => {
   await connectDB();
@@ -97,6 +100,15 @@ const startServer = async () => {
   });
 };
 
-startServer();
+if (!process.env.VERCEL) {
+  // Local development / traditional Node host — start the HTTP server normally
+  startServer();
+} else {
+  // Vercel serverless — connect to DB on module load (warm invocations reuse the cached promise)
+  connectDB().catch((err) => {
+    console.error('DB connection failed on serverless boot:', err.message);
+  });
+}
 
 module.exports = app;
+
