@@ -1,0 +1,10 @@
+{
+  "name": "bookvault-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:server": "npm.cmd --prefix server run dev",
+    "dev:client": "npm.cmd --prefix client run dev",
+    "seed": "npm.cmd --prefix server run seed"
+  }
+}
