@@ -41,7 +41,21 @@ if (process.env.NODE_ENV !== 'test') {
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
 });
-
+// Ensure MongoDB is connected before handling API requests on Vercel
+if (process.env.VERCEL) {
+  app.use(async (req, res, next) => {
+    try {
+      await connectDB();
+      next();
+    } catch (err) {
+      console.error('MongoDB connection error:', err.message);
+      res.status(503).json({
+        success: false,
+        message: 'Database connection failed'
+      });
+    }
+  });
+}
 // ---------------------------------------------------------------------------
 // API Routes
 // ---------------------------------------------------------------------------
